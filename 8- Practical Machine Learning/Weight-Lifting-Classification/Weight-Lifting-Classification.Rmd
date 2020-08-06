@@ -1,6 +1,6 @@
 ---
 title: "Weight Lifting Classification"
-output: github_document
+output: html_document
 always_allow_html: true
 ---
 
@@ -50,7 +50,7 @@ colSums(is.na(training))
 training[,sapply(training, is.character)]
 ```
 
-```{r echo=FALSE, eval=FALSE, include=FALSE}
+```{r echo=FALSE}
 rmarkdown::paged_table(training[1:100,], options = list(rows.print = 10))
 ```
 
@@ -82,7 +82,7 @@ nearZeroVar(training)
 
 The cleaned dataset consists of `r nrow(training)` rows and `r ncol(training)` columns. Except for the outcome variable, all variables were either integer or numeric.
 
-```{r echo=FALSE, eval=FALSE, include=FALSE}
+```{r echo=FALSE}
 rmarkdown::paged_table(training[1:100,], options = list(rows.print = 10))
 ```
 
@@ -92,7 +92,7 @@ Below is a shiny app I created to visualize the data. Histograms, boxplots, and 
 <iframe src ="https://jason-dude.shinyapps.io/Visualizing-Weight-Classification/" height=700px width=1000 />
 
 # Modeling 
-Now we're on to the fun stuff. This analysis was my first time creating machine learning models, so I decided to try out several classification algorithms rather than attempting to tune the parameters of one algorithm. I wouldn't know how to properly tune the model, anyway, so choosing a variety of models sounded best.  
+Now we're on to the fun stuff. This analysis was my first time creating machine learning models, so I decided to try out several classification algorithms rather than attempting to tune the parameters of one algorithm. 
 
 ### Treebag Model
 

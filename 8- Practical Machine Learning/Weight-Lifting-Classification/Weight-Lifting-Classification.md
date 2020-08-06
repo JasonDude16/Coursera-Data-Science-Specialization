@@ -113,8 +113,7 @@ shiny server.
 Now we’re on to the fun stuff. This analysis was my first time creating
 machine learning models, so I decided to try out several classification
 algorithms rather than attempting to tune the parameters of one
-algorithm. I wouldn’t know how to properly tune the model, anyway, so
-choosing a variety of models sounded best.
+algorithm.
 
 ### Treebag Model
 
