@@ -1,0 +1,13 @@
+name: Visualizing-Weight-Classification
+title: Visualizing-Weight-Classification
+username:
+account: jason-dude
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 2624363
+bundleId: 3451459
+url: https://jason-dude.shinyapps.io/Visualizing-Weight-Classification/
+when: 1596045633.07635
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: app_script.R|data/pml-testing.csv

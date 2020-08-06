@@ -1,0 +1,106 @@
+---
+title: "Predictors of MPG"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r, include=FALSE, message=FALSE, warning=FALSE, fig.align='center'}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r include=FALSE}
+library(ggplot2); library(gridExtra); library(dplyr); library(plyr)
+```
+
+# Executive Summary 
+There were two objective for this assignment:
+
+* Assess whether an automatic or manual transmission is better for MPG
+* Quantify the difference in MPG between automatic and manual transmissions
+
+After importing and cleaning the data, I performed an initial t-test to assess if there was a difference in MPG between automatic and manual transmissions, and there was. I then created a series of models to determine if the observed differences could be (partially) explained by other variables. I concluded that, when holding weight and horsepower constant, the transmission type does not appear to significantly influence MPG. However, when ignoring all other variables, automatic transmission vehicles have a significantly higher MPG on average (Auto avg = 24.4, Manual avg = 17.1; p = .001). 
+
+# Recoding
+The `am`, `vs`, and `cyl` variables were recoded as factors.
+
+```{r}
+dat <- mtcars
+dat$am <- as.factor(mapvalues(dat$am, c(0,1), c("Automatic", "Manual")))
+dat$vs <- as.factor(mapvalues(dat$vs, c(0,1), c("V-shaped", "Straight")))
+dat$cyl <- as.factor(dat$cyl)
+```
+
+# Hypothesis Test
+A two sample t-test could be used to assess if there is a significant difference between MPG of manual and automatic vehicles.
+
+```{r}
+t.test(dat$mpg[dat$am == "Automatic"], dat$mpg[dat$am == "Manual"])
+```
+
+The results of the t-test show vehicles with an automatic transmission have a significantly higher MPG (Auto avg = 24.4, Manual avg = 17.1; p = .001). However, other variables could potentially explain/modify the observed difference.  
+
+# Model Comparison
+I created 3 linear models to assess the relationship between MPG and transmission type:
+
+```{r}
+mod1 <- lm(mpg ~ am + wt, data = dat)
+```
+
+```{r}
+mod2 <- lm(mpg ~ am + wt + hp, data = dat)
+```
+
+```{r}
+mod3 <- lm(mpg ~ am + wt + hp + cyl, data = dat)
+```
+
+```{r}
+anova(mod1, mod2, mod3)
+```
+
+Th ANOVA printout shows that the 2nd model is significantly better than the 1st, but the 3rd model isn't much better than the 2nd So, I'll use the 2nd model. I also chose the 2nd model because the 3rd model splits the subgroups by cylinder size, which lead to very small sample sizes:
+
+```{r}
+table(dat$am, dat$cyl)
+```
+
+Referring back to the 2nd model, you can see that the `amManual` is not significant; this suggests that **there is not a meaningful difference in MPG between automatic and manual transmission vehicles when holding weight and horsepower constant**.  
+
+```{r}
+summary(mod2)
+```
+
+# Diagnostics
+
+```{r fig.align='center'}
+par(mfrow = c(2, 2))
+plot(mod2)
+```
+
+The diagnostics for this model are fairly good. The normal Q-Q plot has several points that do not align with the theoretical quantiles, but these points do not appear to have much leverage. 
+
+# Supporting Figures
+
+```{r fig.align='center', out.height='70%', out.width='70%'}
+
+plot(dat)
+
+hist(dat$mpg, col = "lightblue", breaks = 10)
+
+p1 <- 
+ggplot(dat, aes(wt, mpg, col= am))+ 
+  geom_point() + 
+  theme_bw()
+
+p2 <- 
+ggplot(dat, aes(hp, mpg, col= am))+ 
+  geom_point() + 
+  theme_bw()
+
+gridExtra::grid.arrange(p1, p2)
+
+ggplot(dat, aes(x = am, y = mpg, fill = cyl)) + 
+  geom_boxplot() + 
+  theme_bw()
+```

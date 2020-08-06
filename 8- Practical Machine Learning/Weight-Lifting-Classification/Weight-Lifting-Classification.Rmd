@@ -1,0 +1,176 @@
+---
+title: "Weight Lifting Classification"
+output: github_document
+always_allow_html: true
+---
+
+```{r setup, include=FALSE, message=FALSE, warning=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Summary 
+In this analysis, I created several machine learning models with the goal of classifying several variations of a weight lifting exercise (a barbell curl). In some instances, the exercise was performed with good form, and in other instances the the exercise was intentionally performed with poor form (i.e. swinging hips). The model was used to differentiate between 5 variations of the exercise using 3 accelerometers that were placed on the arm, upper arm, and waist (located anteriorly) of 6 participants. An overview of the dataset and where it was collected from can be found [here](http://web.archive.org/web/20161224072740/http:/groupware.les.inf.puc-rio.br/har). 
+
+```{r include=FALSE, cache=TRUE}
+mod_treebag <- readRDS("./objects/bagging.rds")
+mod_gbm <- readRDS("./objects/boosting.rds")
+mod_ensemble <- readRDS("./objects/ensemble.rds")
+mod_nb <- readRDS("./objects/nb.rds")
+mod_rf <- readRDS("./objects/rf.rds")
+```
+
+# Importing and Viewing
+The following packages are needed to reproduce the code below. Note that the seed is set at `123` for this entire analysis. 
+
+```{r message=FALSE, warning=FALSE}
+set.seed(123)
+library(caret) 
+library(ggplot2)
+library(dplyr)
+library(rattle) 
+library(plyr) 
+library(randomForest)
+```
+
+* The training set can be downloaded [here](https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv).
+
+* The testing set can be downloaded [here](https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv).
+
+```{r cache=TRUE}
+training <- read.csv("./data/pml-training.csv")
+testing <- read.csv("./data/pml-testing.csv")
+```
+
+Below are the main functions I used to get a feel for the data. I didn't print the results to save space. The full dataset consists of `r nrow(training)` rows and `r ncol(training)` columns.
+
+```{r eval=FALSE}
+str(training)
+summary(training)
+colSums(is.na(training))
+training[,sapply(training, is.character)]
+```
+
+```{r echo=FALSE, eval=FALSE, include=FALSE}
+rmarkdown::paged_table(training[1:100,], options = list(rows.print = 10))
+```
+
+# Cleaning
+The data cleaning process was very straightforward. I converted the outcome variable to a numeric factor, then removed columns with NAs and empty character values `""`. This removed nearly half of the variables. It's important to note that the variables either had zero NA values or they had a lot (over 90% of the column was empty); there wasn't a single case where a variable had only a few NA values. The columns with mostly NA values were likely aggregated columns, but I decided not to use these variables because of the much smaller sample size. After this, the first few columns were removed which consisted of indexing and time stamps. 
+
+```{r}
+# CREATE DUMMY VARS FOR OUTCOME
+training$classe <- mapvalues(training$classe, c("A", "B", "C", "D", "E"), 0:4)
+training$classe <- as.factor(training$classe)
+
+# REMOVE NA COLUMNS 
+NAs <- unlist(which(colSums(is.na(training)) > 0))
+training <- training[-NAs]
+
+# REMOVE CHAR NA COLUMNS 
+char_NAs <- unlist(which(sapply(training, is.character)))
+training <- training[-char_NAs]
+
+# REMOVE INDEX AND TIMESTAMP COLUMNS
+training <- training[-1:-4]
+```
+
+After the dataset was cleaned, the variance of the remained variables was assessed. If the variance was near zero, I would've removed the variables (if it seemed appropriate); but none of the remaining variables had near zero variance. 
+```{r}
+# ASSESS VARIANCE OF REMAINING VARIABLES
+nearZeroVar(training)
+```
+
+The cleaned dataset consists of `r nrow(training)` rows and `r ncol(training)` columns. Except for the outcome variable, all variables were either integer or numeric.
+
+```{r echo=FALSE, eval=FALSE, include=FALSE}
+rmarkdown::paged_table(training[1:100,], options = list(rows.print = 10))
+```
+
+# Exploratory Analysis
+Below is a shiny app I created to visualize the data. Histograms, boxplots, and scatter plots can be created, data can be grouped or ungrouped, and the scaling can be adjusted. The app initially computed kmeans classification accuracy for the X and Y variable, but unfortunately that feature did not work once the app was uploaded to the shiny server.
+
+<iframe src ="https://jason-dude.shinyapps.io/Visualizing-Weight-Classification/" height=700px width=1000 />
+
+# Modeling 
+Now we're on to the fun stuff. This analysis was my first time creating machine learning models, so I decided to try out several classification algorithms rather than attempting to tune the parameters of one algorithm. I wouldn't know how to properly tune the model, anyway, so choosing a variety of models sounded best.  
+
+### Treebag Model
+
+```{r eval=FALSE}
+mod_treebag <- train(classe ~ ., 
+                     data = training, 
+                     preProcess = "pca", 
+                     method = "treebag")
+```
+
+```{r cm_tb, cache=TRUE}
+confusionMatrix(predict(mod_treebag, training), training$classe)
+```
+
+### Gradient Boosting Model 
+
+```{r eval=FALSE}
+trainctrl <- trainControl(verboseIter = TRUE, number = 5)
+mod_gbm <- train(classe  ~ ., 
+                 data = training,
+                 preProcess = "pca",
+                 method = "gbm",
+                 verbose = TRUE,
+                 trControl = trainctrl)
+```
+
+```{r cm_gbm, cache=TRUE}
+confusionMatrix(predict(mod_gbm, training), training$classe)
+```
+
+### Naive Bayes Model
+
+```{r eval=FALSE}
+trainctrl <- trainControl(number = 5, verboseIter = TRUE)
+mod_nb <- train(classe  ~ ., 
+                data = training,
+                preProcess = "pca",
+                method = "nb",
+                trControl = trainctrl)
+```
+
+```{r cm_nb, cache=TRUE, warning=FALSE}
+confusionMatrix(predict(mod_nb, training), training$classe)
+```
+
+### Ensemble Model
+
+```{r all_preds, cache=TRUE}
+boost_pred <- predict(mod_gbm, training)
+bagging_pred <- predict(mod_treebag, training)
+all_preds <- data.frame(boost_pred, bagging_pred, classe = training$classe)
+```
+
+```{r eval=FALSE}
+mod_ensemble <- train(classe ~ ., data = all_preds, method = "treebag")
+```
+
+```{r cm_ensemble, cache=TRUE}
+confusionMatrix(predict(mod_ensemble, training), training$classe)
+```
+
+### Random Forest
+
+```{r eval=FALSE}
+mod_rf <- randomForest(classe ~. , data = training, do.trace = TRUE)
+```
+
+```{r cm_rf, cache=TRUE}
+confusionMatrix(predict(mod_rf, training), training$classe)
+```
+
+### Summary of Models
+The `treebag`, `gradient boosting`, and `naive bayes` models were all pre-processed using principal components analysis. In a way, the `ensemble` model was as well, because the model combined the `gradient boosting` and `treebag` models which both used PCA. The models were left to their default settings, except the `boosting` and `naive bayes` were both set to `number = 5`. This was done because the models were taking awhile to finish, so I lowered the number to speed up the process. As you can see in the printout summaries the `Random Forest` model had perfect accuracy. 
+
+# Results 
+I implemented the `Random Forest` model for the test set because, after doing a little more research, it seems that this model performs well with noisy data. This information, combined with the 100% accuracy on the training set, made it the sensical choice.
+
+```{r}
+predictions <- predict(mod_rf, testing)
+factor(predictions, labels = c("A", "B", "C", "D", "E"))
+```

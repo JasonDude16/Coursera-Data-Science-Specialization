@@ -1,0 +1,107 @@
+---
+title: "Analysis of Tooth Growth Dataset in R"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Overview 
+This report is comprised of two parts. In the first part, I investigated the distribution of averages of 40 exponentials by performing 1000 simulations. I compared the simulated sample mean to the theoretical mean(`1 / lambda`), and the simulated sample variance to the theoretical variance (`1 / lambda`). In part two, I briefly analyzed, summarized, and performed hypothesis tests of a dataset related to tooth growth. 
+
+# Part 2
+Goal: Explore, analyze, and perform a hypothesis test of the `ToothGrowth` dataset in R.
+
+## Exploratory Analysis and Data Summary
+Here is a summary of the `ToothGrowth` dataset from the Help section in R.
+
+> "The response is the length of odontoblasts (cells responsible for tooth growth) in 60 guinea pigs. Each animal received one of three dose levels of vitamin C (0.5, 1, and 2 mg/day) by one of two delivery methods, orange juice or ascorbic acid (a form of vitamin C and coded as VC)."
+
+The dataset is a dataframe with 60 observations and 3 variables: `len`, `supp`, and `dose`. 
+
+```{r}
+str(ToothGrowth)
+summary(ToothGrowth)
+```
+
+The outcome variable of interest is `len`, so I want to know what the distribution of this variable looks like. 
+
+```{r out.height='70%', out.width='70%', fig.align='center'}
+par(mfrow = c(1, 3))
+hist(ToothGrowth$len, main = "Length Distribution", xlab = "")
+hist(subset(ToothGrowth, supp == "OJ")[,1], main = "OJ Subset", xlab = "")
+hist(subset(ToothGrowth, supp == "VC")[,1], main = "VC Subset", xlab = "")
+```
+
+The data seems fairly normal and does not appear to be skewed in either direction, so I'll assume the normal distribution assumption has not been violated.
+
+Now I'll make graphs to visualize any difference between groups; but first, I need to convert the `dose` column to a factor. 
+
+```{r}
+ToothGrowth$dose <- as.factor(ToothGrowth$dose)
+```
+
+The data is now ready for plotting. Let's see what the group differences look like for `supp` and `dose`.
+
+```{r out.height='70%', out.width='70%', fig.align='center'}
+library(ggplot2)
+library(gridExtra)
+
+p3 <- 
+ggplot(ToothGrowth, aes(supp, len, fill = supp)) + 
+  geom_boxplot() +
+  theme_bw() +
+  theme(panel.grid.major.x = element_blank()) 
+
+p4 <- 
+ggplot(ToothGrowth, aes(dose, len, fill = dose)) +
+  geom_boxplot() + 
+  theme_bw() +
+  theme(panel.grid.major.x = element_blank())
+
+grid.arrange(p3, p4, ncol = 2)
+```
+
+Before performing the hypothesis tests, I created subsets of the data to make the code a little more clean and readable.
+
+```{r}
+OJ <- subset(ToothGrowth, supp == "OJ")[1]
+VC <- subset(ToothGrowth, supp == "VC")[1]
+
+low <- subset(ToothGrowth, dose == 0.5)[1]
+med <- subset(ToothGrowth, dose == 1)[1]
+high <- subset(ToothGrowth, dose == 2)[1]
+```
+
+## Differences in Tooth Growth by Supplement Type
+I used a Two-Sample t-test to assess the difference between `supp` groups.
+
+```{r}
+t.test(OJ, VC, alternative = "two.sided", paired = F)
+```
+
+Although it's close, the p-value is not significant, which suggests there is not a significant difference between groups.
+
+## Differences in Tooth Growth by Dose
+Generally an ANOVA model would be used for this analysis, but the assignment instructed us to use only techniques from class; so, I'll use 3 Two-Sample t-tests to compare the `dose` levels. 
+
+```{r}
+(low_med <- t.test(low, med, alternative = "two.sided", paired = F))
+(low_high <- t.test(low, high, alternative = "two.sided", paired = F))
+(med_high <- t.test(med, high, alternative = "two.sided", paired = F))
+```
+
+The p-values are significant for all three group comparisons.
+
+### Controlling Family-Wise Error Rate
+Since we performed multiple comparisons with the `dose` variable, we need to control for the FWER.
+
+```{r}
+p.adjust(c(low_med$p.value,
+           low_high$p.value,
+           med_high$p.value),
+         method = "bonferroni")
+```
+
+Even after adjusting, the p-values are significant, which suggests that each group is significantly different from the other two.

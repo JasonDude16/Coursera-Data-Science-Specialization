@@ -1,0 +1,39 @@
+Shiny App Presentation
+========================================================
+author: 
+date: 
+autosize: true
+
+Shiny App Rationale
+========================================================
+- There are many variables to explore in the Weight Lifting Classification dataset which was used for the Practical Machine Learning course
+
+- If you're not an engineer, it's difficult to know which accelerometer variables are most important 
+
+- If you tried to explore all of the relationships with different graphs, it would be very time-consuming
+
+- Having a shiny app to visualize many variables and relationships is a great idea!
+
+Example
+========================================================
+
+- In the example below, you can see that the plot shows information about mpg, horsepower, and cyclinder.
+
+```{r echo = FALSE}
+plot(mtcars$mpg, mtcars$hp, col = as.factor(mtcars$cyl))
+```
+
+- But what if this dataset had 50 other variables that could be just as important?
+
+Look at All Those Variables
+========================================================
+
+```{r}
+str(read.csv("./data/pml-testing.csv"))
+```
+
+There's Only One Solution (not really)
+========================================================
+
+- Make a shiny app!
+

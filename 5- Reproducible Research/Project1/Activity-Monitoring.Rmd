@@ -1,0 +1,125 @@
+---
+title: "Activity Monitoring"
+author: "Jason Dude"
+date: "7/13/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE, warning=FALSE, message=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(dplyr)
+library(ggplot2)
+```
+
+```{r}
+data <- read.csv("./data/activity.csv")
+```
+
+```{r}
+head(data)
+```
+
+```{r}
+head(data %>% group_by(date) %>% summarise(total_steps = sum(steps)))
+```
+
+```{r}
+data %>% 
+    group_by(date) %>% 
+    summarise(total_steps = sum(steps)) %>% 
+    ggplot(mapping = aes(total_steps)) + 
+    geom_histogram() + 
+    theme_bw()
+```
+
+```{r}
+data %>% 
+    group_by(date) %>% 
+    summarise(total_steps = sum(steps)) %>% 
+    summarise(mean = mean(total_steps, na.rm = T),
+              median = median(total_steps, na.rm = T))
+```
+
+```{r}
+data %>% 
+    group_by(interval) %>% 
+    summarise(mean = mean(steps, na.rm = T)) %>% 
+    ggplot(mapping = aes(x = interval, y = mean)) + 
+    geom_line() +
+    theme_bw()
+```
+
+```{r}
+data2 <- 
+    data %>% 
+    group_by(interval) %>% 
+    summarise(mean = mean(steps, na.rm = T))
+
+data2$interval[which.max(data2$mean)]
+
+```
+
+```{r}
+colSums(is.na(data))
+```
+
+```{r cache=TRUE}
+for (j in 1:length(data[is.na(data), 1])) {
+    
+    if (is.na(data)[, 1]) {
+        
+        for (k in 1:nrow(data2)) {
+            
+            if (data[is.na(data), 3][j] == data2$interval[k]) {
+                
+                data[is.na(data), 1][j] <- mean(data2$mean[k])
+             
+                }
+            }
+        }
+}
+
+```
+
+```{r}
+colSums(is.na(data))
+```
+
+```{r}
+data %>% 
+    group_by(date) %>% 
+    summarise(total_steps = sum(steps)) %>% 
+    ggplot(mapping = aes(total_steps)) + 
+    geom_histogram() + 
+    theme_bw()
+```
+
+```{r}
+activityFilled %>% 
+    group_by(date) %>% 
+    summarise(total_steps = sum(steps)) %>% 
+    summarise(mean = mean(total_steps),
+              median = median(total_steps))
+```
+
+```{r}
+data$day <- weekdays(as.Date(data$date))
+data$day <- as.factor(ifelse(data$day %in% c("Monday",
+                                             "Tuesday", 
+                                             "Wednesday",
+                                             "Thursday", 
+                                             "Friday"), 
+                                             "Weekday", "Weekend"))
+```
+
+```{r}
+data %>% 
+    group_by(interval, day) %>% 
+    summarise(mean = mean(steps, na.rm = T)) %>% 
+    ggplot(mapping = aes(x = interval, y = mean)) +
+    geom_line() + 
+    facet_wrap(vars(day), nrow = 2) 
+```
