@@ -1,18 +1,15 @@
 library(plyr)
-setwd("~/Desktop/Code/Coursera/Data Science/CDSS/HW_Q/Data/Assign3")
 rates <- read.csv("outcome-of-care-measures.csv", colClasses = "character")
 hist(as.numeric(rates[, 11]))
 
 # ' -----------------------------------------------------------------------
 
 hosp_sort <- function(state,outcome){
-  #setting NA to be 0
   rates[rates == "Not Available"] <- 0
   index <- c(grep("^Hospital.*Death*", names(rates)))
   mortality_rates <- rates[,c(2,7,index)]
   names(mortality_rates)[3:5] <- c("heart attack", "heart failure", "pneumonia")
   
-  #Making rates numeric
   mortality_rates[,3:5] <- apply(mortality_rates[,3:5],2,as.numeric)
   
   mortality_rates[mortality_rates == 0] <- NA
@@ -21,7 +18,6 @@ hosp_sort <- function(state,outcome){
   order_selected <- arrange(selected_state, selected_state[,outcome], Hospital.Name, na.last=TRUE)
   order_selected <- order_selected[complete.cases(order_selected[,outcome]),]
   return(order_selected)
-  #na.omit(selected_state[order(c(selected_state[,outcome]), na.last = TRUE),])
 }
 
 best <- function(state, outcome, st = "a") {
@@ -56,7 +52,6 @@ rankhospital <- function(state, outcome, num = "best", st = "a"){
 }
 
 rankall <- function(outcome, num = "best") {
-  #print(lapply(unique(rates$State),hosp_sort, outcome))
   results <- unlist(lapply(sort(unique(rates$State)), rankhospital, outcome, num),use.names=FALSE)
   hosp <- results[c(TRUE,FALSE)]
   state <- results[c(FALSE,TRUE)]

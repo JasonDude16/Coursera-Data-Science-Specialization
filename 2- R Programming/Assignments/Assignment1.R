@@ -1,6 +1,4 @@
 library(tidyverse)
-setwd("~/Desktop/Code/Coursera/Data Science/Data Science HW and Quizzes")
-setwd("./Data/specdata")
 dir <- getwd()
 
 
@@ -16,8 +14,6 @@ pollutantmean <- function(directory, pollutant, id) {
         data_list[[i]] <- read_csv(list[i])
         comb <- do.call(rbind, data_list)
     }
-    
-    browser()
     
     comb[,3] <- as.numeric(comb[,3])
     comb[,4] <- as.numeric(comb[,4])
