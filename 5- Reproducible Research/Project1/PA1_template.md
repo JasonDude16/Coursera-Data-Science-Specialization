@@ -42,7 +42,7 @@ head(data %>% group_by(date) %>% summarise(total_steps = sum(steps)))
 ```
 ## # A tibble: 6 x 2
 ##   date       total_steps
-##   <fct>            <int>
+##   <chr>            <int>
 ## 1 2012-10-01          NA
 ## 2 2012-10-02         126
 ## 3 2012-10-03       11352
