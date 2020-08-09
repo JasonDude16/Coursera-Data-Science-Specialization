@@ -1,7 +1,5 @@
 # Coursera-Data-Science-Specialization
-Coursera's Data Science Specialization by Johns Hopkins University
-
-https://www.coursera.org/specializations/jhu-data-science
+This repository contains some of the assignments and projects I completed for Coursera's (Data Science Specialization)(https://www.coursera.org/specializations/jhu-data-science) by Johns Hopkins University.
 
 # The Data Scientist's Toolbox
 This course gives an overview of the data, questions, and tools that data analysts and data scientists work with. 
