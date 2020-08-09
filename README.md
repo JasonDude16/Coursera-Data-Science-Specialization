@@ -23,7 +23,7 @@ This course presents the fundamentals of inference in a practical approach for g
 This course covers regression analysis, least squares and inference using regression models. Special cases of the regression model, ANOVA and ANCOVA is covered as well. Analysis of residuals and variability will be investigated.
 
 # Practical Machine Learning
-This course covers the basic components of building and applying prediction functions with an emphasis on practical applications. The course introduces a range of model based and algorithmic machine learning methods including regression, classification trees, Naive Bayes, and random forests. The course covers the complete process of building prediction functions including data collection, feature creation, algorithms, and evaluation.
+This course covers the basic components of building and applying prediction functions with an emphasis on practical applications. The course covers the complete process of building prediction functions including data collection, feature creation, algorithms, and evaluation.
 
 # Developing Data Products 
 This course covers the basics of creating data products using Shiny, R packages, and interactive graphics.
