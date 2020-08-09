@@ -1,5 +1,5 @@
 # Coursera-Data-Science-Specialization
-This repository contains some of the assignments and projects I completed for Coursera's [Data Science Specialization](https://www.coursera.org/specializations/jhu-data-science) by Johns Hopkins University. This specialization works through the entire data science pipeline, from gathering data to implementing scalable data science products. Here is the [link](https://www.coursera.org/account/accomplishments/specialization/certificate/FD2E6Z2JZG3Q) to my certificate of complettion.
+This repository contains some of the assignments and projects I completed for Coursera's [Data Science Specialization](https://www.coursera.org/specializations/jhu-data-science) by Johns Hopkins University. This specialization works through the entire data science pipeline, from gathering data to implementing scalable data science products.
 
 # The Data Scientist's Toolbox
 This course gives an overview of the data, questions, and tools that data analysts and data scientists work with. 
