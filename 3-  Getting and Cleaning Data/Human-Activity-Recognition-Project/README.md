@@ -1,6 +1,6 @@
 # Human-Activity-Recognition-Project
 
-You can view my brief analysis of this data by opeing the [Codebook.md](Codebook.md) file.
+You can view my brief analysis of this data by opeing the [CodeBook.md](CodeBook.md) file.
 
 This repository contains a folder called UCI HAR Dataset, a run_analysis.R script, a CodeBook.md file, and a Human-Activity-Recognition-Project.Rproj file (and of course this README.md file). 
 
