@@ -7,7 +7,7 @@ This course gives an overview of the data, questions, and tools that data analys
 ## 2- [R Programming](./2-%20R%20Programming)
 This course covers practical issues in statistical computing which includes programming in R, reading data into R, accessing R packages, writing R functions, debugging, profiling R code, and organizing and commenting R code.
 
-## 3- [Getting and Cleaning Data](./3-%20Getting%20and%20Cleaning%20Data)
+## 3- [Getting and Cleaning Data](./3-%20%20Getting%20and%20Cleaning%20Data)
 The course covers obtaining data from the web, from APIs, from databases and from colleagues in various formats. The course also covers the components of a complete data set including raw data, processing instructions, codebooks, and processed data. 
 
 ## 4- [Exploratory Data Analysis](./4-%20Exploratory%20Data%20Analysis)
